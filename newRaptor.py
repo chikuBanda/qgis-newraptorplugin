@@ -21,9 +21,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QDate
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QMessageBox
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -189,6 +189,16 @@ class NewRaptor:
             self.first_start = False
             self.dlg = NewRaptorDialog()
 
+            #QMessageBox.information(self.dlg, "info", "this should only run once")
+            self.dlg.speciesComboBox.currentTextChanged.connect(self.evt_speciesComboBox_changed)
+
+        QMessageBox.information(self.dlg, "info", "this should run everytimme")
+
+        mc = self.iface.mapCanvas()
+        self.dlg.latitudeDoubleSpinBox.setValue(mc.center().y())
+        self.dlg.longitudeDoubleSpinBox.setValue(mc.center().x())
+        self.dlg.lastSurveyDateEdit.setDate(QDate.currentDate())
+
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -197,4 +207,12 @@ class NewRaptor:
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
-            pass
+            QMessageBox.information(self.dlg, "info", "this should run when OK button is pressed")
+        else:
+            QMessageBox.information(self.dlg, "info", "this should run when CANCEL is pressed")
+
+    def evt_speciesComboBox_changed(self, species):
+        if species == "Swainsons Hawk":
+            self.dlg.bufferDistanceDoubleSpinBox.setValue(0.004)
+        else:
+            self.dlg.bufferDistanceDoubleSpinBox.setValue(0.008)
